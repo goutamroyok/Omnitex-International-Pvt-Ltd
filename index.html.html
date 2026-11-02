@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIRAASAT | Curators of India's Living Heritage</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: '#FBF8F3',
+                        sandstone: '#F3EDE2',
+                        charcoal: '#1C1B18',
+                        gold: '#C29B38',
+                        bronze: '#8C6D37',
+                    },
+                    fontFamily: {
+                        serif: ['Cinzel', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FBF8F3;
+            color: #1C1B18;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Jaali Motif Overlay Background Pattern */
+        .jaali-pattern {
+            background-image: radial-gradient(#C29B38 0.75px, transparent 0.75px), radial-gradient(#C29B38 0.75px, #FBF8F3 0.75px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            opacity: 0.15;
+        }
+
+        /* Canvas Particle/Smoke Styling */
+        #smokeCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Custom scrollbar for museum elegance */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F3EDE2;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #C29B38;
+            border-radius: 3px;
+        }
+
+        /* Glassmorphism for Luxury Feeling */
+        .glass-card {
+            background: rgba(251, 248, 243, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(194, 155, 56, 0.2);
+        }
+
+        /* Ambient Glow */
+        .gold-glow {
+            box-shadow: 0 0 25px rgba(194, 155, 56, 0.15);
+        }
+
+        /* Custom Modal Animations */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 300ms ease-out, transform 300ms ease-out;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen">
+
+    <!-- NAVIGATION BAR -->
+    <header class="sticky top-0 z-40 w-full glass-card border-b border-gold/20 px-6 py-4 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 border border-gold flex items-center justify-center rounded-full transition-transform group-hover:rotate-45 duration-500">
+                    <span class="font-serif text-gold text-xl font-bold">V</span>
+                </div>
+                <div>
+                    <span class="font-serif text-xl tracking-widest text-charcoal font-bold block leading-none">VIRAASAT</span>
+                    <span class="text-[9px] tracking-widest text-bronze uppercase font-semibold">Living Heritage Institution</span>
+                </div>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden lg:flex items-center gap-8 font-medium text-xs tracking-widest uppercase text-charcoal/80">
+                <a href="#about" class="hover:text-gold transition-colors">About</a>
+                <a href="#collections" class="hover:text-gold transition-colors">Collections</a>
+                <a href="#artisan-village" class="hover:text-gold transition-colors">Artisan Village</a>
+                <a href="#traceability" class="hover:text-gold transition-colors">Traceability</a>
+                <a href="#importer-hub" class="hover:text-gold transition-colors">Importer Hub</a>
+                <a href="#journal" class="hover:text-gold transition-colors">Journal</a>
+            </nav>
+
+            <div class="hidden sm:flex items-center gap-4">
+                <button onclick="toggleAICurator()" class="flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-wider text-gold border border-gold/40 hover:bg-gold/10 rounded-sm transition">
+                    <i class="fa-solid fa-compass-drafting text-gold"></i> AI Curator
+                </button>
+                <a href="#importer-hub" class="px-5 py-2 text-xs uppercase tracking-widest bg-charcoal text-parchment hover:bg-gold transition-all duration-300 font-semibold rounded-sm">
+                    Partner Portal
+                </a>
+            </div>
+
+            <!-- Mobile Menu Toggle -->
+            <button onclick="toggleMobileMenu()" class="lg:hidden text-charcoal p-2 focus:outline-none">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Container -->
+        <div id="mobileMenu" class="hidden lg:hidden flex-col gap-4 pt-4 pb-2 border-t border-gold/20 mt-4 text-xs uppercase tracking-wider">
+            <a href="#about" onclick="toggleMobileMenu()" class="hover:text-gold">About</a>
+            <a href="#collections" onclick="toggleMobileMenu()" class="hover:text-gold">Collections</a>
+            <a href="#artisan-village" onclick="toggleMobileMenu()" class="hover:text-gold">Artisan Village</a>
+            <a href="#traceability" onclick="toggleMobileMenu()" class="hover:text-gold">Traceability</a>
+            <a href="#importer-hub" onclick="toggleMobileMenu()" class="hover:text-gold">Importer Hub</a>
+            <a href="#journal" onclick="toggleMobileMenu()" class="hover:text-gold">Journal</a>
+            <div class="flex flex-col gap-2 pt-2">
+                <button onclick="toggleAICurator(); toggleMobileMenu();" class="w-full text-center py-2 border border-gold text-gold">AI Curator</button>
+                <a href="#importer-hub" onclick="toggleMobileMenu()" class="w-full text-center py-2 bg-charcoal text-parchment">Partner Portal</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION WITH MULTI-LAYER AESTHETIC -->
+    <section class="relative min-h-[90vh] flex items-center justify-center px-6 py-20 overflow-hidden">
+        <!-- Background Layers -->
+        <div class="absolute inset-0 jaali-pattern"></div>
+        <canvas id="smokeCanvas"></canvas>
+
+        <!-- Blurred Silhouette Accent (Nataraja) -->
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
+            <i class="fa-solid fa-dharmachakra text-[35vw] text-gold animate-spin-slow"></i>
+        </div>
+
+        <div class="relative z-10 max-w-4xl mx-auto text-center space-y-8">
+            <div class="inline-flex items-center gap-3 px-4 py-1.5 border border-gold/30 rounded-full bg-sandstone/50 text-xs font-serif tracking-widest uppercase text-bronze">
+                <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
+                Official Export & Heritage Preservation Institution
+            </div>
+
+            <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-charcoal leading-tight">
+                WHERE HERITAGE <br><span class="italic font-normal text-bronze">FINDS A FUTURE</span>
+            </h1>
+
+            <p class="text-base sm:text-xl text-charcoal/80 max-w-2xl mx-auto font-light leading-relaxed">
+                Preserving India's Living Traditions Through Ethical Global Partnerships. We build multi-generational relationships with importers, luxury hospitality brands, and museum stores worldwide.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
+                <a href="#collections" class="w-full sm:w-auto px-8 py-4 bg-gold text-charcoal font-semibold uppercase text-xs tracking-widest hover:bg-bronze hover:text-parchment transition duration-300 gold-glow text-center rounded-sm">
+                    Explore Heritage Collections
+                </a>
+                <a href="#artisan-village" class="w-full sm:w-auto px-8 py-4 border border-charcoal/40 text-charcoal font-semibold uppercase text-xs tracking-widest hover:border-gold hover:text-gold transition duration-300 text-center rounded-sm">
+                    Meet Our Artisans
+                </a>
+                <a href="#importer-hub" class="w-full sm:w-auto px-8 py-4 border border-gold text-gold font-semibold uppercase text-xs tracking-widest hover:bg-gold/10 transition duration-300 text-center rounded-sm">
+                    Become An Import Partner
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRUST STRIP -->
+    <section class="border-y border-gold/20 bg-sandstone/60 py-8 px-6">
+        <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div class="space-y-1">
+                <i class="fa-solid fa-hands-holding-child text-gold text-2xl mb-2"></i>
+                <h4 class="font-serif font-bold text-sm text-charcoal uppercase tracking-wider">Fair Trade Certified</h4>
+                <p class="text-xs text-charcoal/70">100% direct artisan compensation</p>
+            </div>
+            <div class="space-y-1">
+                <i class="fa-solid fa-certificate text-gold text-2xl mb-2"></i>
+                <h4 class="font-serif font-bold text-sm text-charcoal uppercase tracking-wider">EPCH Registered</h4>
+                <p class="text-xs text-charcoal/70">Government verified export house</p>
+            </div>
+            <div class="space-y-1">
+                <i class="fa-solid fa-qrcode text-gold text-2xl mb-2"></i>
+                <h4 class="font-serif font-bold text-sm text-charcoal uppercase tracking-wider">100% Traceable Origin</h4>
+                <p class="text-xs text-charcoal/70">Batch-level artisan verification</p>
+            </div>
+            <div class="space-y-1">
+                <i class="fa-solid fa-building-columns text-gold text-2xl mb-2"></i>
+                <h4 class="font-serif font-bold text-sm text-charcoal uppercase tracking-wider">B2B Institutional Only</h4>
+                <p class="text-xs text-charcoal/70">No direct consumer retail</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CURATED HERITAGE COLLECTIONS SECTION -->
+    <section id="collections" class="py-24 px-6 max-w-7xl mx-auto">
+        <div class="text-center space-y-4 mb-16">
+            <span class="text-xs font-serif text-bronze uppercase tracking-widest block">Museum Quality Works</span>
+            <h2 class="font-serif text-3xl sm:text-5xl font-bold text-charcoal">Curated Heritage Collections</h2>
+            <div class="w-16 h-0.5 bg-gold mx-auto"></div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="flex flex-wrap items-center justify-center gap-3 mb-12">
+            <button onclick="filterCollection('all')" class="tab-btn active px-5 py-2 text-xs uppercase tracking-widest border border-gold bg-gold text-charcoal font-semibold rounded-sm transition" data-category="all">All Crafts</button>
+            <button onclick="filterCollection('bengal')" class="tab-btn px-5 py-2 text-xs uppercase tracking-widest border border-gold/30 bg-transparent text-charcoal hover:border-gold rounded-sm transition" data-category="bengal">Bengal Heritage</button>
+            <button onclick="filterCollection('rajasthan')" class="tab-btn px-5 py-2 text-xs uppercase tracking-widest border border-gold/30 bg-transparent text-charcoal hover:border-gold rounded-sm transition" data-category="rajasthan">Rajasthan Heritage</button>
+            <button onclick="filterCollection('tribal')" class="tab-btn px-5 py-2 text-xs uppercase tracking-widest border border-gold/30 bg-transparent text-charcoal hover:border-gold rounded-sm transition" data-category="tribal">Tribal & Folk Art</button>
+            <button onclick="filterCollection('eco')" class="tab-btn px-5 py-2 text-xs uppercase tracking-widest border border-gold/30 bg-transparent text-charcoal hover:border-gold rounded-sm transition" data-category="eco">Eco & Bamboo</button>
+        </div>
+
+        <!-- Product Grid -->
+        <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Product Cards dynamic populate -->
+        </div>
+    </section>
+
+    <!-- ARTISAN VILLAGE & TRACEABILITY SYSTEM -->
+    <section id="artisan-village" class="py-24 px-6 bg-sandstone/40 border-y border-gold/20 relative">
+        <div class="max-w-7xl mx-auto space-y-16">
+            <div class="text-center space-y-4">
+                <span class="text-xs font-serif text-bronze uppercase tracking-widest block">The Custodians</span>
+                <h2 class="font-serif text-3xl sm:text-5xl font-bold text-charcoal">Artisan Village & Legacy</h2>
+                <p class="text-sm text-charcoal/70 max-w-xl mx-auto">Honor the master artisans preserving centuries of knowledge. Every partnership guarantees economic autonomy and generational legacy preservation.</p>
+            </div>
+
+            <!-- Artisan Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Artisan 1 -->
+                <div class="glass-card p-6 space-y-4 hover:border-gold transition">
+                    <div class="h-64 bg-charcoal/10 rounded-sm overflow-hidden relative group">
+                        <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=600" alt="Master Artisan" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute bottom-3 left-3 bg-charcoal/80 text-parchment text-[10px] uppercase tracking-widest px-3 py-1 rounded-sm">5th Generation</div>
+                    </div>
+                    <div>
+                        <h3 class="font-serif text-xl font-bold text-charcoal">Shri Rameshwar Bhargava</h3>
+                        <p class="text-xs text-gold font-semibold uppercase tracking-wider">Habur Stone Sculptor | Jaisalmer, Rajasthan</p>
+                    </div>
+                    <p class="text-xs text-charcoal/80 leading-relaxed">Pioneer in carving non-porous fossilized stone into luxury dining vessels without chemical treatments.</p>
+                    <div class="border-t border-gold/20 pt-3 flex justify-between text-[11px] text-charcoal/70 font-semibold">
+                        <span>Impact: 14 Artisans Employed</span>
+                        <span>Experience: 42 Years</span>
+                    </div>
+                </div>
+
+                <!-- Artisan 2 -->
+                <div class="glass-card p-6 space-y-4 hover:border-gold transition">
+                    <div class="h-64 bg-charcoal/10 rounded-sm overflow-hidden relative group">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600" alt="Master Artisan" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute bottom-3 left-3 bg-charcoal/80 text-parchment text-[10px] uppercase tracking-widest px-3 py-1 rounded-sm">National Awardee</div>
+                    </div>
+                    <div>
+                        <h3 class="font-serif text-xl font-bold text-charcoal">Smt. Sunita Devi</h3>
+                        <p class="text-xs text-gold font-semibold uppercase tracking-wider">Madhubani Master | Madhubani, Bihar</p>
+                    </div>
+                    <p class="text-xs text-charcoal/80 leading-relaxed">Specializing in natural pigment acrylic and canvas works inspired by sacred forest folklore.</p>
+                    <div class="border-t border-gold/20 pt-3 flex justify-between text-[11px] text-charcoal/70 font-semibold">
+                        <span>Impact: Women's Collective Lead</span>
+                        <span>Experience: 30 Years</span>
+                    </div>
+                </div>
+
+                <!-- Artisan 3 -->
+                <div class="glass-card p-6 space-y-4 hover:border-gold transition">
+                    <div class="h-64 bg-charcoal/10 rounded-sm overflow-hidden relative group">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600" alt="Master Artisan" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute bottom-3 left-3 bg-charcoal/80 text-parchment text-[10px] uppercase tracking-widest px-3 py-1 rounded-sm">4th Generation</div>
+                    </div>
+                    <div>
+                        <h3 class="font-serif text-xl font-bold text-charcoal">Biren Kumbhakar</h3>
+                        <p class="text-xs text-gold font-semibold uppercase tracking-wider">Terracotta & Wood Carver | Bankura, Bengal</p>
+                    </div>
+                    <p class="text-xs text-charcoal/80 leading-relaxed">Preserving the sacred proportions of traditional Bankura ritualistic horses for high-end international architectural spaces.</p>
+                    <div class="border-t border-gold/20 pt-3 flex justify-between text-[11px] text-charcoal/70 font-semibold">
+                        <span>Impact: Village Co-op Founder</span>
+                        <span>Experience: 35 Years</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TRACEABILITY LOOKUP SYSTEM -->
+            <div id="traceability" class="glass-card p-8 sm:p-12 max-w-4xl mx-auto gold-glow space-y-8 rounded-sm">
+                <div class="text-center space-y-2">
+                    <i class="fa-solid fa-fingerprint text-gold text-3xl"></i>
+                    <h3 class="font-serif text-2xl sm:text-3xl font-bold text-charcoal">Craft Origin & Batch Verification</h3>
+                    <p class="text-xs text-charcoal/70">Enter the verification batch code provided on your commercial export invoice or product authentication certificate.</p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="batchCodeInput" placeholder="Enter Batch Code (e.g., IND-2026-BKN or IND-2026-RAJ)" class="flex-1 px-4 py-3 bg-parchment border border-gold/40 text-xs tracking-wider uppercase font-mono text-charcoal focus:outline-none focus:border-gold">
+                    <button onclick="verifyBatchCode()" class="px-8 py-3 bg-charcoal text-parchment text-xs font-semibold uppercase tracking-widest hover:bg-gold hover:text-charcoal transition duration-300">
+                        Verify Origin
+                    </button>
+                </div>
+
+                <!-- Traceability Result Display -->
+                <div id="traceabilityResult" class="hidden p-6 border border-gold/30 bg-parchment/60 space-y-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- B2B IMPORTER HUB & RFQ GENERATOR -->
+    <section id="importer-hub" class="py-24 px-6 max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <!-- Left Info Panel -->
+            <div class="lg:col-span-5 space-y-8">
+                <div>
+                    <span class="text-xs font-serif text-bronze uppercase tracking-widest block">Global Institutional Portal</span>
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-charcoal mt-2">Become An Institutional Import Partner</h2>
+                </div>
+                <p class="text-sm text-charcoal/80 leading-relaxed">
+                    We serve premier wholesalers, museum stores, interior designers, and luxury hospitality chains. Request formal commercial proposals, custom design production, or sample shipments.
+                </p>
+
+                <div class="space-y-4 border-t border-gold/20 pt-6">
+                    <div class="flex items-start gap-4">
+                        <i class="fa-solid fa-boxes-packing text-gold text-lg mt-1"></i>
+                        <div>
+                            <h4 class="font-serif text-sm font-bold text-charcoal">Custom Export Packaging</h4>
+                            <p class="text-xs text-charcoal/70">ISPM-15 certified wooden crates and drop-tested eco-friendly protective inner packaging.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <i class="fa-solid fa-[#C29B38] fa-file-contract text-gold text-lg mt-1"></i>
+                        <div>
+                            <h4 class="font-serif text-sm font-bold text-charcoal">Private Labeling & Documentation</h4>
+                            <p class="text-xs text-charcoal/70">Certificate of Origin, Form A/APTA, EPCH verification, and custom branded inner boxing.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-sandstone/60 border border-gold/30 space-y-2">
+                    <span class="text-[10px] font-bold text-gold uppercase tracking-widest">Compliance Assurance</span>
+                    <p class="text-xs text-charcoal/80">Direct CRM synchronization automatically notifies our trade compliance team for expedited proforma invoicing.</p>
+                </div>
+            </div>
+
+            <!-- Right Interactive RFQ Form -->
+            <div class="lg:col-span-7 glass-card p-8 sm:p-10 gold-glow">
+                <form id="rfqForm" onsubmit="handleRFQSubmit(event)" class="space-y-6">
+                    <h3 class="font-serif text-xl font-bold text-charcoal border-b border-gold/20 pb-3">Request Commercial Quotation (RFQ)</h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-semibold uppercase text-charcoal/80">Company Name *</label>
+                            <input type="text" required class="w-full px-4 py-2.5 bg-parchment border border-gold/30 text-xs focus:outline-none focus:border-gold">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-semibold uppercase text-charcoal/80">Contact Person *</label>
+                            <input type="text" required class="w-full px-4 py-2.5 bg-parchment border border-gold/30 text-xs focus:outline-none focus:border-gold">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-semibold uppercase text-charcoal/80">Corporate Email *</label>
+                            <input type="email" required class="w-full px-4 py-2.5 bg-parchment border border-gold/30 text-xs focus:outline-none focus:border-gold">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-semibold uppercase text-charcoal/80">Country of Importation *</label>
+                            <input type="text" required placeholder="e.g. United States, Germany, Japan" class="w-full px-4 py-2.5 bg-parchment border border-gold/30 text-xs focus:outline-none focus:border-gold">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-semibold uppercase text-charcoal/80">Business Type</label>
+                            <select class="w-full px-4 py-2.5 bg-parchment border border-gold/30 text-xs focus:outline-none focus:border-gold">
+                                <option>Direct Importer / Wholesaler</option>
+                                <option>Museum Store Curator</option>
+                                <option>Luxury Hospitality Group</option>
+                                <option>Interior Architecture Firm</option>
+                                <option>Specialty Retail Chain</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-semibold uppercase text-charcoal/80">Target Annual Volume</label>
+                            <select class="w-full px-4 py-2.5 bg-parchment border border-gold/30 text-xs focus:outline-none focus:border-gold">
+                                <option>$10,000 - $50,000</option>
+                                <option>$50,000 - $250,000</option>
+                                <option>$250,000+</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-semibold uppercase text-charcoal/80">Interested Craft Lines / SKUs & Customization Specs</label>
+                        <textarea rows="4" placeholder="Specify products (e.g. Habur Stone Wine Glasses, Bankura Wooden Horses), target quantities, and private labeling requests..." class="w-full px-4 py-2.5 bg-parchment border border-gold/30 text-xs focus:outline-none focus:border-gold"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full py-4 bg-charcoal text-parchment font-semibold text-xs uppercase tracking-widest hover:bg-gold hover:text-charcoal transition duration-300">
+                        Submit Formal RFQ Proposal
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- HERITAGE JOURNAL (SEO & CONTENT SECTION) -->
+    <section id="journal" class="py-24 px-6 bg-sandstone/30 border-t border-gold/20">
+        <div class="max-w-7xl mx-auto space-y-16">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <span class="text-xs font-serif text-bronze uppercase tracking-widest block">Thought Leadership & Heritage</span>
+                    <h2 class="font-serif text-3xl sm:text-5xl font-bold text-charcoal">The Heritage Journal</h2>
+                </div>
+                <a href="#importer-hub" class="text-xs uppercase tracking-widest text-gold font-bold hover:underline">Explore Full Knowledge Base &rarr;</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Article 1 -->
+                <article class="glass-card p-6 space-y-4 hover:border-gold transition">
+                    <span class="text-[10px] text-bronze uppercase font-bold tracking-widest">Craft History</span>
+                    <h3 class="font-serif text-lg font-bold text-charcoal">The Petro-Geological Wonder of Habur Stone</h3>
+                    <p class="text-xs text-charcoal/70 leading-relaxed">Discovered in Jaisalmer’s fossilized marine strata, exploring why this non-porous stone naturally ferments milk into curd without additives.</p>
+                    <a href="javascript:void(0)" onclick="alert('Full research journal entry downloadable in partner portal.')" class="inline-block text-xs text-gold font-bold uppercase tracking-wider">Read Monograph &rarr;</a>
+                </article>
+
+                <!-- Article 2 -->
+                <article class="glass-card p-6 space-y-4 hover:border-gold transition">
+                    <span class="text-[10px] text-bronze uppercase font-bold tracking-widest">Export Knowledge</span>
+                    <h3 class="font-serif text-lg font-bold text-charcoal">Navigating Global Compliance for Wooden Artifacts</h3>
+                    <p class="text-xs text-charcoal/70 leading-relaxed">A comprehensive manual on ISPM-15 phytosanitary treatment protocols for Bankura and Dooars timber exports.</p>
+                    <a href="javascript:void(0)" onclick="alert('Full research journal entry downloadable in partner portal.')" class="inline-block text-xs text-gold font-bold uppercase tracking-wider">Read Guide &rarr;</a>
+                </article>
+
+                <!-- Article 3 -->
+                <article class="glass-card p-6 space-y-4 hover:border-gold transition">
+                    <span class="text-[10px] text-bronze uppercase font-bold tracking-widest">Cultural Preservation</span>
+                    <h3 class="font-serif text-lg font-bold text-charcoal">Madhubani: Sacred Geometry & Natural Pigments</h3>
+                    <p class="text-xs text-charcoal/70 leading-relaxed">Documenting the traditional extraction of deep blacks from lampblack and yellows from turmeric in Mithila court art.</p>
+                    <a href="javascript:void(0)" onclick="alert('Full research journal entry downloadable in partner portal.')" class="inline-block text-xs text-gold font-bold uppercase tracking-wider">Read Monograph &rarr;</a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- INSTITUTIONAL FOOTER -->
+    <footer class="bg-charcoal text-parchment pt-16 pb-12 px-6 border-t-2 border-gold">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-parchment/10 text-xs">
+            <div class="space-y-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 border border-gold flex items-center justify-center rounded-full">
+                        <span class="font-serif text-gold text-lg font-bold">V</span>
+                    </div>
+                    <span class="font-serif text-lg tracking-widest font-bold">VIRAASAT</span>
+                </div>
+                <p class="text-parchment/70 leading-relaxed font-light">
+                    The premier heritage-driven export institution preserving India’s living crafts through transparent, long-term B2B relationships.
+                </p>
+                <div class="text-[11px] text-gold font-mono">
+                    Official Namecheap Domain Mapping: export-viraasat.org
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="font-serif text-sm font-bold uppercase tracking-widest text-gold">Documentation</h4>
+                <ul class="space-y-2 text-parchment/70">
+                    <li><a href="#" class="hover:text-gold transition">Export Promotion Council (EPCH)</a></li>
+                    <li><a href="#" class="hover:text-gold transition">IEC & Trade Compliance</a></li>
+                    <li><a href="#" class="hover:text-gold transition">Fair Trade Charter</a></li>
+                    <li><a href="#" class="hover:text-gold transition">Phytosanitary Protocol</a></li>
+                </ul>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="font-serif text-sm font-bold uppercase tracking-widest text-gold">Heritage Collections</h4>
+                <ul class="space-y-2 text-parchment/70">
+                    <li><a href="#collections" class="hover:text-gold transition">Habur Stone Masterworks</a></li>
+                    <li><a href="#collections" class="hover:text-gold transition">Bankura Wooden Sculptures</a></li>
+                    <li><a href="#collections" class="hover:text-gold transition">Madhubani & Kalamkari Art</a></li>
+                    <li><a href="#collections" class="hover:text-gold transition">Organic Bamboo Crafts</a></li>
+                </ul>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="font-serif text-sm font-bold uppercase tracking-widest text-gold">Institutional Contact</h4>
+                <p class="text-parchment/70 leading-relaxed">
+                    Heritage Craft Complex, Sector 4<br>
+                    New Delhi - 110001, INDIA<br>
+                    <span class="text-gold">trade@viraasat-heritage.org</span>
+                </p>
+                <div class="flex gap-4 text-sm text-gold pt-2">
+                    <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="#"><i class="fa-brands fa-whatsapp"></i></a>
+                    <a href="#"><i class="fa-solid fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-parchment/50 gap-4">
+            <p>&copy; 2026 VIRAASAT Living Heritage Export Institution. All Rights Reserved.</p>
+            <div class="flex gap-6">
+                <a href="#" class="hover:text-gold">Privacy Charter</a>
+                <a href="#" class="hover:text-gold">Terms of Export</a>
+                <a href="#" class="hover:text-gold">Zero-Cost Infrastructure Stack Notice</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- PRODUCT SPECIFICATION MODAL -->
+    <div id="productModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-charcoal/80 backdrop-blur-sm">
+        <div class="glass-card max-w-3xl w-full p-8 rounded-sm relative max-h-[90vh] overflow-y-auto space-y-6">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 text-charcoal hover:text-gold text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="modalContent">
+                <!-- Dynamically populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- AI HERITAGE CURATOR CHATBOT MODAL -->
+    <div id="aiCuratorModal" class="fixed bottom-6 right-6 z-50 hidden w-full max-w-sm glass-card border border-gold shadow-2xl rounded-sm overflow-hidden">
+        <div class="bg-charcoal text-parchment p-4 flex items-center justify-between border-b border-gold/40">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-compass-drafting text-gold"></i>
+                <div>
+                    <h4 class="font-serif text-xs font-bold uppercase tracking-wider">AI Heritage Curator</h4>
+                    <span class="text-[9px] text-gold font-mono">Export Assistant Online</span>
+                </div>
+            </div>
+            <button onclick="toggleAICurator()" class="text-parchment/70 hover:text-gold text-sm">
+                <i class="fa-solid fa-minus"></i>
+            </button>
+        </div>
+
+        <div id="chatMessages" class="p-4 h-72 overflow-y-auto space-y-3 text-xs bg-parchment/90">
+            <div class="bg-sandstone p-3 rounded-sm text-charcoal space-y-1">
+                <span class="text-[10px] font-bold text-bronze uppercase block">AI Curator</span>
+                <p>Namaste! I am your AI Heritage & Export Assistant. Ask me about craft provenance, tariff HS codes, or product suitability for your import market.</p>
+            </div>
+        </div>
+
+        <div class="p-3 bg-sandstone/60 border-t border-gold/20 flex gap-2">
+            <input type="text" id="aiInput" placeholder="Ask about HS codes or craft history..." class="flex-1 px-3 py-2 bg-parchment border border-gold/30 text-xs focus:outline-none focus:border-gold" onkeypress="handleAIKeyPress(event)">
+            <button onclick="sendAIMessage()" class="px-3 py-2 bg-charcoal text-gold text-xs font-bold hover:bg-gold hover:text-charcoal transition">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // SAMPLE PRODUCT CATALOG DATA
+        const products = [
+            {
+                id: 'SKU-HS-001',
+                title: 'Habur Stone Fossilized Wine Glasses',
+                category: 'rajasthan',
+                craft: 'Habur Stone Carving',
+                region: 'Jaisalmer, Rajasthan',
+                artisan: 'Shri Rameshwar Bhargava',
+                hsCode: '6802.99.00',
+                moq: '50 Sets (2 pcs/set)',
+                leadTime: '25 Days',
+                materials: 'Fossilized Bio-Calcareous Habur Stone',
+                dimensions: '7.5 cm (D) x 18 cm (H)',
+                weight: '450g per glass',
+                packaging: 'Custom velvet-lined rigid wooden presentation box',
+                image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=600',
+                story: 'Crafted from 125-million-year-old fossilized seashell strata unique to Habur village. The mineral composition naturally enhances beverage aeration.'
+            },
+            {
+                id: 'SKU-BKN-002',
+                title: 'Bankura Ritualistic Wooden Horse Sculpture',
+                category: 'bengal',
+                craft: 'Bankura Wood Carving',
+                region: 'Panchmura, West Bengal',
+                artisan: 'Biren Kumbhakar',
+                hsCode: '4420.11.00',
+                moq: '15 Pairs',
+                leadTime: '40 Days',
+                materials: 'Seasoned Neem Wood (Insect-resistant)',
+                dimensions: '30 cm (W) x 75 cm (H)',
+                weight: '4.2 kg',
+                packaging: 'Individual ISPM-15 crate with shock-absorbing foam',
+                image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=600',
+                story: 'Symmetrical tall neck and erect ears symbolize divine grace in Bengal village shrines. Hand-carved without nails using traditional chiseled joinery.'
+            },
+            {
+                id: 'SKU-MDB-003',
+                title: 'Tree of Life Canvas Miniature',
+                category: 'tribal',
+                craft: 'Madhubani Painting',
+                region: 'Mithila, Bihar',
+                artisan: 'Smt. Sunita Devi',
+                hsCode: '9701.91.00',
+                moq: '30 Pieces',
+                leadTime: '20 Days',
+                materials: 'Handmade Tassar Silk Paper & Natural Pigments',
+                dimensions: '45 cm x 60 cm',
+                weight: '150g',
+                packaging: 'Moisture-proof rolled tube or flat preservation portfolio',
+                image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&q=80&w=600',
+                story: 'Depicts cosmic interconnectedness using double-line borders, filled with intricate geometric patterns using bamboo twigs and nib pens.'
+            },
+            {
+                id: 'SKU-BMB-004',
+                title: 'Woven Organic Bamboo Ambient Lamp',
+                category: 'eco',
+                craft: 'Bamboo Weaving',
+                region: 'Silchar, Assam',
+                artisan: 'Pranab Das',
+                hsCode: '9405.50.00',
+                moq: '100 Units',
+                leadTime: '30 Days',
+                materials: 'Muli Bamboo & Natural Oil Sealant',
+                dimensions: '40 cm (D) x 55 cm (H)',
+                weight: '850g',
+                packaging: 'Nested nest-box export carton',
+                image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&q=80&w=600',
+                story: 'Flexible split-bamboo strips woven into warm ambient light diffusers. Completely biodegradable with zero toxic varnishes.'
+            }
+        ];
+
+        // RENDER PRODUCTS TO GRID
+        function renderProducts(items) {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = items.map(product => `
+                <div class="glass-card rounded-sm overflow-hidden group hover:border-gold transition duration-300 flex flex-col justify-between">
+                    <div class="relative h-64 overflow-hidden bg-charcoal/5">
+                        <img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <span class="absolute top-3 left-3 bg-charcoal text-gold font-mono text-[10px] px-2.5 py-1 uppercase tracking-widest">${product.hsCode}</span>
+                    </div>
+                    <div class="p-6 space-y-3 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-bronze uppercase tracking-widest block">${product.craft} • ${product.region}</span>
+                            <h3 class="font-serif text-xl font-bold text-charcoal mt-1">${product.title}</h3>
+                        </div>
+                        <p class="text-xs text-charcoal/70 line-clamp-2">${product.story}</p>
+                        <div class="pt-4 border-t border-gold/20 flex items-center justify-between">
+                            <span class="text-[11px] font-semibold text-charcoal/80">MOQ: ${product.moq}</span>
+                            <button onclick="openProductModal('${product.id}')" class="text-xs uppercase font-bold tracking-wider text-gold hover:text-bronze transition">
+                                View Specs &rarr;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // FILTER PRODUCTS BY CATEGORY
+        function filterCollection(category) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-gold', 'text-charcoal', 'font-semibold');
+                btn.classList.add('bg-transparent', 'text-charcoal');
+            });
+            event.target.classList.add('bg-gold', 'text-charcoal', 'font-semibold');
+
+            if (category === 'all') {
+                renderProducts(products);
+            } else {
+                renderProducts(products.filter(p => p.category === category));
+            }
+        }
+
+        // PRODUCT MODAL LOGIC
+        function openProductModal(sku) {
+            const product = products.find(p => p.id === sku);
+            if (!product) return;
+
+            const modalContent = document.getElementById('modalContent');
+            modalContent.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="h-64 md:h-full bg-charcoal/5 rounded-sm overflow-hidden">
+                        <img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <span class="text-[10px] font-mono text-gold uppercase tracking-wider">${product.id} | HS: ${product.hsCode}</span>
+                            <h2 class="font-serif text-2xl font-bold text-charcoal">${product.title}</h2>
+                            <p class="text-xs text-bronze uppercase font-semibold">${product.craft} (${product.region})</p>
+                        </div>
+                        <div class="space-y-2 text-xs text-charcoal/80 border-y border-gold/20 py-3">
+                            <p><strong>Artisan Master:</strong> ${product.artisan}</p>
+                            <p><strong>Minimum Order (MOQ):</strong> ${product.moq}</p>
+                            <p><strong>Lead Time:</strong> ${product.leadTime}</p>
+                            <p><strong>Materials:</strong> ${product.materials}</p>
+                            <p><strong>Dimensions:</strong> ${product.dimensions}</p>
+                            <p><strong>Packaging:</strong> ${product.packaging}</p>
+                        </div>
+                        <p class="text-xs text-charcoal/80 leading-relaxed">${product.story}</p>
+                        <div class="flex gap-3 pt-2">
+                            <a href="#importer-hub" onclick="closeProductModal()" class="flex-1 py-3 bg-charcoal text-parchment text-center text-xs font-semibold uppercase tracking-widest hover:bg-gold hover:text-charcoal transition">
+                                Request Quote
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        // BATCH TRACEABILITY DEMO
+        function verifyBatchCode() {
+            const input = document.getElementById('batchCodeInput').value.trim().toUpperCase();
+            const resultDiv = document.getElementById('traceabilityResult');
+
+            if (!input) {
+                alert('Please enter a valid batch code.');
+                return;
+            }
+
+            resultDiv.classList.remove('hidden');
+            if (input.includes('BKN') || input.includes('IND-2026-BKN')) {
+                resultDiv.innerHTML = `
+                    <div class="flex items-center gap-2 text-gold font-bold text-xs uppercase tracking-wider">
+                        <i class="fa-solid fa-circle-check"></i> Authentic Export Lot Verified
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-xs text-charcoal/80 pt-2">
+                        <div><strong>Origin Village:</strong> Panchmura, Bankura, West Bengal</div>
+                        <div><strong>Lead Artisan:</strong> Biren Kumbhakar (4th Gen)</div>
+                        <div><strong>Timber Harvest License:</strong> WB-FOR-2025-992</div>
+                        <div><strong>Fair Trade Premium Paid:</strong> 100% Direct Deposit</div>
+                    </div>
+                `;
+            } else if (input.includes('RAJ') || input.includes('IND-2026-RAJ')) {
+                resultDiv.innerHTML = `
+                    <div class="flex items-center gap-2 text-gold font-bold text-xs uppercase tracking-wider">
+                        <i class="fa-solid fa-circle-check"></i> Authentic Export Lot Verified
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-xs text-charcoal/80 pt-2">
+                        <div><strong>Origin Village:</strong> Habur, Jaisalmer, Rajasthan</div>
+                        <div><strong>Lead Artisan:</strong> Shri Rameshwar Bhargava</div>
+                        <div><strong>Geological Certification:</strong> Geological Survey Verification</div>
+                        <div><strong>Artisan Guild Fund:</strong> 15% Allocated</div>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="text-bronze font-bold text-xs uppercase tracking-wider">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Batch Record Found (Demo Mode)
+                    </div>
+                    <p class="text-xs text-charcoal/80 pt-1">Verified Institutional Export Lot under Fair Trade Charter protocol. Contact verification@viraasat-heritage.org for physical seal validation.</p>
+                `;
+            }
+        }
+
+        // AI CURATOR INTERACTIVE CHAT
+        function toggleAICurator() {
+            const modal = document.getElementById('aiCuratorModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function handleAIKeyPress(e) {
+            if (e.key === 'Enter') sendAIMessage();
+        }
+
+        function sendAIMessage() {
+            const input = document.getElementById('aiInput');
+            const messages = document.getElementById('chatMessages');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            // Add User Message
+            messages.innerHTML += `
+                <div class="bg-gold/20 p-3 rounded-sm text-charcoal space-y-1 text-right">
+                    <span class="text-[10px] font-bold text-charcoal uppercase block">You</span>
+                    <p>${text}</p>
+                </div>
+            `;
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+
+            // Simulate AI Response
+            setTimeout(() => {
+                let reply = "I can assist you with export documentation, HS code classification, and custom MOQ lead times for all regional collections.";
+                const lower = text.toLowerCase();
+                
+                if (lower.includes('stone') || lower.includes('habur')) {
+                    reply = "Habur Stone falls under HS Code 6802.99.00. It is non-porous fossilized stone ideal for luxury tableware. MOQ is typically 50 sets.";
+                } else if (lower.includes('wood') || lower.includes('horse') || lower.includes('bengal')) {
+                    reply = "Bankura Wooden Sculptures fall under HS Code 4420.11.00. All timber is ISPM-15 phytosanitary treated before ocean freight shipment.";
+                } else if (lower.includes('sample') || lower.includes('quote') || lower.includes('price')) {
+                    reply = "To receive a formal Proforma Invoice or sample box, please fill out the Importer Hub RFQ form on this page.";
+                }
+
+                messages.innerHTML += `
+                    <div class="bg-sandstone p-3 rounded-sm text-charcoal space-y-1">
+                        <span class="text-[10px] font-bold text-bronze uppercase block">AI Curator</span>
+                        <p>${reply}</p>
+                    </div>
+                `;
+                messages.scrollTop = messages.scrollHeight;
+            }, 600);
+        }
+
+        // RFQ FORM SUBMISSION
+        function handleRFQSubmit(e) {
+            e.preventDefault();
+            alert('Your formal RFQ has been received and routed to our Trade Compliance team. A Proforma estimate and spec catalog will be dispatched to your corporate email.');
+            document.getElementById('rfqForm').reset();
+        }
+
+        // MOBILE MENU TOGGLE
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // CANVAS SMOKE & PARTICULATE ANIMATION
+        window.onload = function() {
+            renderProducts(products);
+
+            const canvas = document.getElementById('smokeCanvas');
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const particles = [];
+            for (let i = 0; i < 40; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    r: Math.random() * 3 + 1,
+                    d: Math.random() * 0.5 + 0.2,
+                    opacity: Math.random() * 0.3 + 0.1
+                });
+            }
+
+            function drawParticles() {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = 'rgba(194, 155, 56, 0.2)';
+
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2, false);
+                    ctx.fill();
+
+                    p.y -= p.d;
+                    p.x += Math.sin(p.y * 0.01) * 0.3;
+
+                    if (p.y < 0) {
+                        p.y = height;
+                        p.x = Math.random() * width;
+                    }
+                });
+
+                requestAnimationFrame(drawParticles);
+            }
+            drawParticles();
+        };
+    </script>
+</body>
+</html>
